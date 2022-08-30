@@ -6,6 +6,26 @@ const cartStore = useCartStore();
 async function handleCheckout() {
   console.log("checking out");
 }
+
+async function handleCheckAll() {
+  if (checkAll.value.checked) {
+    let sel = []
+    cartStore.products.forEach((prod) => {
+      sel.push(prod.sys.id)
+    });
+    selected.value = sel;
+  } else {
+    selected.value = [];
+  }
+}
+
+async function handleSelect() {
+  if (selected.value.length === cartStore.products.length) {
+    checkAll.value.checked = true;
+  } else {
+    checkAll.value.checked = false;
+  }
+}
 </script>
 <template>
   <div class="m-10">
@@ -13,10 +33,10 @@ async function handleCheckout() {
     <div class="md:flex w-full">
       <div class="md:w-3/4">
         <!-- Use this markup to display an empty cart -->
-        <!-- <div  class="italic text-center pt-10">
+        <div v-if="cartStore.isEmpty" class="italic text-center pt-10">
           Cart is empty
-        </div> -->
-        <div class="overflow-x-auto">
+        </div>
+        <div v-else class="overflow-x-auto">
           <div class="table w-full">
             <table class="w-full">
               <!-- head -->
@@ -24,7 +44,7 @@ async function handleCheckout() {
                 <tr>
                   <th>
                     <label>
-                      <input type="checkbox" class="checkbox" ref="checkAll" />
+                      <input type="checkbox" class="checkbox" ref="checkAll" @change="handleCheckAll" />
                     </label>
                   </th>
                   <th></th>
@@ -42,7 +62,7 @@ async function handleCheckout() {
                         v-model="selected"
                         type="checkbox"
                         class="checkbox"
-                        @change="checkAll.checked = false"
+                        @change="handleSelect"
                         :value="product.sys.id"
                       />
                     </label>
@@ -73,7 +93,8 @@ async function handleCheckout() {
                     <input
                       class="input input-bordered w-20"
                       type="number"
-                      :value="product.count"
+                      min="1"
+                      v-model="product.count"
                     />
                   </td>
                   <th>
